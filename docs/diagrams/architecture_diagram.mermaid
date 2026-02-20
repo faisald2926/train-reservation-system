@@ -1,0 +1,63 @@
+---
+title: MVC Architecture Diagram
+---
+flowchart TB
+    subgraph View["View Layer (Java Swing GUI)"]
+        LF[LoginFrame]
+        MF[MainFrame]
+        DP[DashboardPanel]
+        TP[TrainPanel]
+        PP[PassengerPanel]
+        RPa[ReservationPanel]
+        RPo[ReportsPanel]
+    end
+
+    subgraph Controller["Controller Layer (Business Logic)"]
+        AC[AuthController]
+        TC[TrainController]
+        PC[PassengerController]
+        RC[ReservationController]
+    end
+
+    subgraph Model["Model Layer (Data Classes)"]
+        U[User]
+        T[Train]
+        P[Passenger]
+        R[Reservation]
+    end
+
+    subgraph Util["Utility Layer"]
+        DS[DataStore - Singleton]
+        US[UIStyle]
+    end
+
+    subgraph Storage["Persistence Layer"]
+        FS["File System (data/*.dat)"]
+    end
+
+    LF --> AC
+    TP --> TC
+    PP --> PC
+    RPa --> RC
+    DP --> DS
+    RPo --> DS
+
+    AC --> DS
+    TC --> DS
+    PC --> DS
+    RC --> DS
+
+    DS --> U
+    DS --> T
+    DS --> P
+    DS --> R
+
+    DS --> FS
+
+    View -.-> US
+
+    style View fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style Controller fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style Model fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    style Util fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style Storage fill:#fce4ec,stroke:#c62828,stroke-width:2px

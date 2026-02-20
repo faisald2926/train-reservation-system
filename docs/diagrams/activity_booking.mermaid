@@ -1,0 +1,36 @@
+---
+title: Booking Process - Activity Diagram
+---
+flowchart TD
+    A([Start]) --> B[Select Passenger from dropdown]
+    B --> C[Select Train from dropdown]
+    C --> D{Is train Active?}
+    D -->|No| E[Display error: Train not active]
+    E --> Z([End])
+    D -->|Yes| F[Enter travel date and seat count]
+    F --> G[Click Book Ticket]
+    G --> H{Seat count > 0?}
+    H -->|No| I[Display error: Must be at least 1]
+    I --> Z
+    H -->|Yes| J{Enough seats available?}
+    J -->|No| K[Display error: Not enough seats]
+    K --> Z
+    J -->|Yes| L{Travel date provided?}
+    L -->|No| M[Display error: Date required]
+    M --> Z
+    L -->|Yes| N[Calculate total price]
+    N --> O[Create Reservation - CONFIRMED]
+    O --> P[Deduct seats from train]
+    P --> Q[Save to DataStore]
+    Q --> R[Display booking confirmation]
+    R --> S[Refresh tables and dropdowns]
+    S --> Z
+
+    style A fill:#009688,color:#fff
+    style Z fill:#dc3545,color:#fff
+    style D fill:#ffc107,color:#000
+    style H fill:#ffc107,color:#000
+    style J fill:#ffc107,color:#000
+    style L fill:#ffc107,color:#000
+    style O fill:#19376d,color:#fff
+    style R fill:#28a745,color:#fff

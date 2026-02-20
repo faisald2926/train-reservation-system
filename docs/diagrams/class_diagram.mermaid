@@ -1,0 +1,126 @@
+---
+title: Train Reservation System - Class Diagram
+---
+classDiagram
+    class User {
+        -String userId
+        -String username
+        -String password
+        -Role role
+        -String fullName
+        +getters/setters()
+        +toString() String
+    }
+
+    class Role {
+        <<enumeration>>
+        ADMIN
+        STAFF
+    }
+
+    class Train {
+        -String trainId
+        -String trainName
+        -String route
+        -String departureStation
+        -String arrivalStation
+        -String departureTime
+        -String arrivalTime
+        -int totalSeats
+        -int availableSeats
+        -double ticketPrice
+        -String status
+        +getOccupancyRate() double
+        +getters/setters()
+        +toString() String
+    }
+
+    class Passenger {
+        -String passengerId
+        -String fullName
+        -String email
+        -String phone
+        -String nationalId
+        -String registrationDate
+        +getters/setters()
+        +toString() String
+    }
+
+    class Reservation {
+        -String reservationId
+        -String passengerId
+        -String passengerName
+        -String trainId
+        -String trainName
+        -String bookingDate
+        -String travelDate
+        -int seatCount
+        -double totalPrice
+        -Status status
+        +getters/setters()
+        +toString() String
+    }
+
+    class Status {
+        <<enumeration>>
+        CONFIRMED
+        CANCELLED
+        PENDING
+    }
+
+    class AuthController {
+        -DataStore dataStore
+        +login(username, password) User
+        +logout() void
+        +isAdmin() boolean
+    }
+
+    class TrainController {
+        -DataStore dataStore
+        +addTrain(...) String
+        +updateTrain(...) String
+        +deleteTrain(trainId) String
+        +getAllTrains() List~Train~
+    }
+
+    class PassengerController {
+        -DataStore dataStore
+        +addPassenger(...) String
+        +updatePassenger(...) String
+        +deletePassenger(passengerId) String
+        +getAllPassengers() List~Passenger~
+    }
+
+    class ReservationController {
+        -DataStore dataStore
+        +bookTicket(...) String
+        +cancelReservation(resId) String
+        +getAllReservations() List~Reservation~
+        +getBookingConfirmation(resId) String
+    }
+
+    class DataStore {
+        <<Singleton>>
+        -static DataStore instance
+        -List~User~ users
+        -List~Train~ trains
+        -List~Passenger~ passengers
+        -List~Reservation~ reservations
+        +static getInstance() DataStore
+        +loadAll() void
+        +saveAll() void
+        +authenticate(user, pass) User
+        +addTrain/Passenger/Reservation()
+        +updateTrain/Passenger/Reservation()
+        +deleteTrain/Passenger()
+        +getStatistics()
+    }
+
+    User --> Role
+    Reservation --> Status
+    Reservation --> Passenger : references
+    Reservation --> Train : references
+    AuthController --> DataStore
+    TrainController --> DataStore
+    PassengerController --> DataStore
+    ReservationController --> DataStore

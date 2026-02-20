@@ -1,0 +1,25 @@
+---
+title: Login Sequence Diagram
+---
+sequenceDiagram
+    actor User
+    participant LF as LoginFrame
+    participant AC as AuthController
+    participant DS as DataStore
+    participant MF as MainFrame
+
+    User->>LF: Enter username & password
+    User->>LF: Click Login
+    LF->>AC: login(username, password)
+    AC->>DS: authenticate(username, password)
+    DS-->>AC: User object (or null)
+    alt Valid Credentials
+        AC->>DS: setCurrentUser(user)
+        AC-->>LF: User object
+        LF->>LF: dispose()
+        LF->>MF: new MainFrame(user)
+        MF-->>User: Main window displayed
+    else Invalid Credentials
+        AC-->>LF: null
+        LF-->>User: Error: "Invalid username or password"
+    end

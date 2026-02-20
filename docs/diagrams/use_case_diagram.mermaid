@@ -1,0 +1,61 @@
+---
+title: Train Reservation System - Use Case Diagram
+---
+flowchart LR
+    Admin((Administrator))
+    Staff((Staff))
+
+    subgraph System["Train Schedule & Reservation Management System"]
+        UC1[Login]
+        UC2[Logout]
+        UC3[Manage Trains]
+        UC3a[Add Train]
+        UC3b[Update Train]
+        UC3c[Delete Train]
+        UC4[Manage Passengers]
+        UC4a[Add Passenger]
+        UC4b[Update Passenger]
+        UC4c[Delete Passenger]
+        UC5[Manage Reservations]
+        UC5a[Book Ticket]
+        UC5b[Cancel Ticket]
+        UC5c[View Confirmation]
+        UC6[View Dashboard]
+        UC7[Generate Reports]
+        UC7a[Booking Report]
+        UC7b[Revenue Report]
+        UC7c[Utilization Report]
+        UC7d[Passenger Report]
+    end
+
+    Admin --- UC1
+    Admin --- UC2
+    Admin --- UC3
+    Admin --- UC4
+    Admin --- UC5
+    Admin --- UC6
+    Admin --- UC7
+
+    Staff --- UC1
+    Staff --- UC2
+    Staff --- UC4
+    Staff --- UC5
+    Staff --- UC6
+
+    UC3 -.->|extends| UC3a
+    UC3 -.->|extends| UC3b
+    UC3 -.->|extends| UC3c
+    UC4 -.->|extends| UC4a
+    UC4 -.->|extends| UC4b
+    UC4 -.->|extends| UC4c
+    UC5 -.->|extends| UC5a
+    UC5 -.->|extends| UC5b
+    UC5 -.->|extends| UC5c
+    UC7 -.->|extends| UC7a
+    UC7 -.->|extends| UC7b
+    UC7 -.->|extends| UC7c
+    UC7 -.->|extends| UC7d
+
+    style System fill:#f0f4ff,stroke:#1937,stroke-width:2px
+    style Admin fill:#19376d,color:#fff
+    style Staff fill:#009688,color:#fff

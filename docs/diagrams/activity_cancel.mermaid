@@ -1,0 +1,29 @@
+---
+title: Cancel Reservation - Activity Diagram
+---
+flowchart TD
+    A([Start]) --> B[Select reservation from table]
+    B --> C[Click Cancel Selected]
+    C --> D{Reservation selected?}
+    D -->|No| E[Display warning: Select a reservation]
+    E --> Z([End])
+    D -->|Yes| F[Show confirmation dialog]
+    F --> G{User confirms?}
+    G -->|No| Z
+    G -->|Yes| H{Already cancelled?}
+    H -->|Yes| I[Display error: Already cancelled]
+    I --> Z
+    H -->|No| J[Set status to CANCELLED]
+    J --> K[Restore seats to train]
+    K --> L[Save to DataStore]
+    L --> M[Display success message]
+    M --> N[Refresh tables]
+    N --> Z
+
+    style A fill:#009688,color:#fff
+    style Z fill:#dc3545,color:#fff
+    style D fill:#ffc107,color:#000
+    style G fill:#ffc107,color:#000
+    style H fill:#ffc107,color:#000
+    style J fill:#19376d,color:#fff
+    style M fill:#28a745,color:#fff

@@ -1,0 +1,36 @@
+---
+title: Book Ticket Sequence Diagram
+---
+sequenceDiagram
+    actor Staff
+    participant RP as ReservationPanel
+    participant RC as ReservationController
+    participant DS as DataStore
+    participant T as Train
+
+    Staff->>RP: Select passenger, train, date, seats
+    Staff->>RP: Click "Book Ticket"
+    RP->>RC: bookTicket(passengerId, trainId, date, seats)
+    RC->>DS: getPassengerById(passengerId)
+    DS-->>RC: Passenger object
+    RC->>DS: getTrainById(trainId)
+    DS-->>RC: Train object
+
+    alt Train not active
+        RC-->>RP: Error: "Train is not active"
+        RP-->>Staff: Error dialog
+    else Seats not available
+        RC-->>RP: Error: "Not enough seats"
+        RP-->>Staff: Error dialog
+    else Valid booking
+        RC->>RC: Calculate total price
+        RC->>RC: Create Reservation (CONFIRMED)
+        RC->>T: setAvailableSeats(current - seatCount)
+        RC->>DS: updateTrain(train)
+        RC->>DS: addReservation(reservation)
+        DS->>DS: saveAll()
+        RC-->>RP: null (success)
+        RP->>RC: getBookingConfirmation(resId)
+        RC-->>RP: Confirmation text
+        RP-->>Staff: Confirmation dialog
+    end
