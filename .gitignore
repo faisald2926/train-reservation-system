@@ -2,6 +2,8 @@
 *.jar
 out/
 build/
+bin/
+data/
 .idea/
 *.iml
 .DS_Store

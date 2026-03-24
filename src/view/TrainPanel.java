@@ -2,6 +2,8 @@ package view;
 
 import controller.TrainController;
 import model.Train;
+import model.User;
+import util.DataStore;
 import util.UIStyle;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -108,9 +110,13 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
         deleteBtn.addActionListener(e -> deleteTrain());
         clearBtn.addActionListener(e -> clearForm());
 
-        btnPanel.add(addBtn);
-        btnPanel.add(updateBtn);
-        btnPanel.add(deleteBtn);
+        User current = DataStore.getInstance().getCurrentUser();
+        boolean isAdmin = current != null && current.getRole() == User.Role.ADMIN;
+        if (isAdmin) {
+            btnPanel.add(addBtn);
+            btnPanel.add(updateBtn);
+            btnPanel.add(deleteBtn);
+        }
         btnPanel.add(clearBtn);
 
         formCard.add(btnPanel, BorderLayout.SOUTH);

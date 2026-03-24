@@ -62,11 +62,15 @@ public class MainFrame extends JFrame {
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 13));
         tabbedPane.setBackground(UIStyle.BG_MAIN);
 
-        tabbedPane.addTab("  Dashboard  ", new DashboardPanel());
+        if (currentUser.getRole() == User.Role.ADMIN) {
+            tabbedPane.addTab("  Dashboard  ", new DashboardPanel());
+        }
         tabbedPane.addTab("  Trains  ", new TrainPanel());
         tabbedPane.addTab("  Passengers  ", new PassengerPanel());
         tabbedPane.addTab("  Reservations  ", new ReservationPanel());
-        tabbedPane.addTab("  Reports  ", new ReportsPanel());
+        if (currentUser.getRole() == User.Role.ADMIN) {
+            tabbedPane.addTab("  Reports  ", new ReportsPanel());
+        }
 
         // Refresh panels on tab change
         tabbedPane.addChangeListener(e -> {
