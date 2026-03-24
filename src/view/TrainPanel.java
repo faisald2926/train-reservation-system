@@ -14,6 +14,7 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
     private TrainController controller;
     private JTable table;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
 
     private JTextField nameField, routeField, depStationField, arrStationField;
     private JTextField depTimeField, arrTimeField, seatsField, priceField;
@@ -30,17 +31,23 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
 
     private void buildUI() {
         // Title
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         titlePanel.setOpaque(false);
         titlePanel.add(UIStyle.createTitleLabel("Train & Schedule Management"));
-        add(titlePanel, BorderLayout.NORTH);
+        topPanel.add(titlePanel, BorderLayout.WEST);
+        add(topPanel, BorderLayout.NORTH);
 
         // Split: Table left, Form right
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setDividerLocation(650);
         splitPane.setBackground(UIStyle.BG_MAIN);
 
-        // === TABLE ===
+        // === TABLE with search ===
+        JPanel tablePanel = new JPanel(new BorderLayout(0, 8));
+        tablePanel.setOpaque(false);
+
         String[] columns = {"Train ID", "Name", "Route", "From", "To", "Departure", "Arrival", "Seats", "Available", "Price (SAR)", "Status"};
         tableModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
@@ -53,9 +60,17 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
             }
         });
 
+        searchField = UIStyle.addTableSearch(table, tableModel);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        searchPanel.setOpaque(false);
+        searchPanel.add(searchField);
+        tablePanel.add(searchPanel, BorderLayout.NORTH);
+
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
-        splitPane.setLeftComponent(scrollPane);
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+        splitPane.setLeftComponent(tablePanel);
 
         // === FORM ===
         JPanel formCard = UIStyle.createCard();
@@ -137,18 +152,20 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
                 String.format("%.2f", t.getTicketPrice()), t.getStatus()
             });
         }
+        UIStyle.applyStatusRenderer(table, 10);
     }
 
-    private void populateForm(int row) {
-        selectedTrainId = tableModel.getValueAt(row, 0).toString();
-        nameField.setText(tableModel.getValueAt(row, 1).toString());
-        routeField.setText(tableModel.getValueAt(row, 2).toString());
-        depStationField.setText(tableModel.getValueAt(row, 3).toString());
-        arrStationField.setText(tableModel.getValueAt(row, 4).toString());
-        depTimeField.setText(tableModel.getValueAt(row, 5).toString());
-        arrTimeField.setText(tableModel.getValueAt(row, 6).toString());
-        seatsField.setText(tableModel.getValueAt(row, 7).toString());
-        priceField.setText(tableModel.getValueAt(row, 9).toString());
+    private void populateForm(int viewRow) {
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        selectedTrainId = tableModel.getValueAt(modelRow, 0).toString();
+        nameField.setText(tableModel.getValueAt(modelRow, 1).toString());
+        routeField.setText(tableModel.getValueAt(modelRow, 2).toString());
+        depStationField.setText(tableModel.getValueAt(modelRow, 3).toString());
+        arrStationField.setText(tableModel.getValueAt(modelRow, 4).toString());
+        depTimeField.setText(tableModel.getValueAt(modelRow, 5).toString());
+        arrTimeField.setText(tableModel.getValueAt(modelRow, 6).toString());
+        seatsField.setText(tableModel.getValueAt(modelRow, 7).toString());
+        priceField.setText(tableModel.getValueAt(modelRow, 9).toString());
     }
 
     private void addTrain() {
@@ -164,7 +181,7 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Train added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                UIStyle.showToast(this, "Train added successfully!", UIStyle.SUCCESS);
                 clearForm();
                 loadTableData();
             }
@@ -190,7 +207,7 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Train updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                UIStyle.showToast(this, "Train updated successfully!", UIStyle.SUCCESS);
                 clearForm();
                 loadTableData();
             }
@@ -211,7 +228,7 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Train deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                UIStyle.showToast(this, "Train deleted.", UIStyle.DANGER);
                 clearForm();
                 loadTableData();
             }

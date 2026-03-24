@@ -12,6 +12,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
     private ReservationController controller;
     private JTable table;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
 
     private JComboBox<String> passengerCombo, trainCombo;
     private JTextField travelDateField, seatCountField;
@@ -36,7 +37,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         // Top: Booking Form
         JPanel bookingCard = UIStyle.createCard();
         bookingCard.setLayout(new BorderLayout(10, 10));
-        bookingCard.setPreferredSize(new Dimension(0, 200));
+        bookingCard.setPreferredSize(new Dimension(0, 250));
 
         JLabel bookTitle = new JLabel("New Booking");
         bookTitle.setFont(UIStyle.FONT_SUBTITLE);
@@ -55,7 +56,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         gbc.gridx = 1; gbc.weightx = 1.0;
         passengerCombo = new JComboBox<>();
         passengerCombo.setFont(UIStyle.FONT_BODY);
-        passengerCombo.setPreferredSize(new Dimension(250, 34));
+        passengerCombo.setPreferredSize(new Dimension(250, 36));
         loadPassengerCombo();
         formPanel.add(passengerCombo, gbc);
 
@@ -64,7 +65,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         gbc.gridx = 3; gbc.weightx = 1.0;
         trainCombo = new JComboBox<>();
         trainCombo.setFont(UIStyle.FONT_BODY);
-        trainCombo.setPreferredSize(new Dimension(250, 34));
+        trainCombo.setPreferredSize(new Dimension(250, 36));
         loadTrainCombo();
         trainCombo.addActionListener(e -> updateTrainInfo());
         formPanel.add(trainCombo, gbc);
@@ -110,7 +111,6 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         refreshBtn.addActionListener(e -> refreshAll());
 
         JButton bookBtn = UIStyle.createAccentButton("Book Ticket");
-        bookBtn.setPreferredSize(new Dimension(150, 36));
         bookBtn.addActionListener(e -> bookTicket());
 
         JButton cancelBtn = UIStyle.createDangerButton("Cancel Selected");
@@ -126,7 +126,10 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
 
         bookingCard.add(bookBtnPanel, BorderLayout.SOUTH);
 
-        // Bottom: Reservations Table
+        // Bottom: Search + Reservations Table
+        JPanel tableSection = new JPanel(new BorderLayout(0, 8));
+        tableSection.setOpaque(false);
+
         String[] columns = {"Res. ID", "Passenger", "Train", "Booking Date", "Travel Date",
                             "Seats", "Total (SAR)", "Status"};
         tableModel = new DefaultTableModel(columns, 0) {
@@ -135,13 +138,20 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         table = new JTable(tableModel);
         UIStyle.styleTable(table);
 
+        searchField = UIStyle.addTableSearch(table, tableModel);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        searchPanel.setOpaque(false);
+        searchPanel.add(searchField);
+        tableSection.add(searchPanel, BorderLayout.NORTH);
+
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
+        tableSection.add(scrollPane, BorderLayout.CENTER);
 
         JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
         centerPanel.setOpaque(false);
         centerPanel.add(bookingCard, BorderLayout.NORTH);
-        centerPanel.add(scrollPane, BorderLayout.CENTER);
+        centerPanel.add(tableSection, BorderLayout.CENTER);
 
         add(centerPanel, BorderLayout.CENTER);
         updateTrainInfo();
@@ -191,6 +201,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
                 String.format("%.2f", r.getTotalPrice()), r.getStatus().toString()
             });
         }
+        UIStyle.applyStatusRenderer(table, 7);
     }
 
     private void bookTicket() {
@@ -234,12 +245,13 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
     }
 
     private void cancelReservation() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
             JOptionPane.showMessageDialog(this, "Select a reservation to cancel.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String resId = tableModel.getValueAt(row, 0).toString();
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        String resId = tableModel.getValueAt(modelRow, 0).toString();
 
         int confirm = JOptionPane.showConfirmDialog(this,
             "Are you sure you want to cancel reservation " + resId + "?",
@@ -250,20 +262,20 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Reservation cancelled. Seats have been released.",
-                    "Cancelled", JOptionPane.INFORMATION_MESSAGE);
+                UIStyle.showToast(this, "Reservation cancelled. Seats released.", UIStyle.DANGER);
                 refreshAll();
             }
         }
     }
 
     private void viewConfirmation() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
             JOptionPane.showMessageDialog(this, "Select a reservation.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String resId = tableModel.getValueAt(row, 0).toString();
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        String resId = tableModel.getValueAt(modelRow, 0).toString();
         String confirmation = controller.getBookingConfirmation(resId);
 
         JTextArea textArea = new JTextArea(confirmation);
@@ -278,10 +290,6 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         loadTrainCombo();
         loadTableData();
         updateTrainInfo();
-    }
-
-    private JButton createButton(String text, Color bg) {
-        return UIStyle.createButton(text, bg);
     }
 
     @Override

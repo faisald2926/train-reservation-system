@@ -30,7 +30,7 @@ public class ReportsPanel extends JPanel implements MainFrame.Refreshable {
         // Controls Panel
         JPanel controlsCard = UIStyle.createCard();
         controlsCard.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 8));
-        controlsCard.setPreferredSize(new Dimension(0, 55));
+        controlsCard.setPreferredSize(new Dimension(0, 80));
 
         controlsCard.add(UIStyle.createLabel("From:"));
         fromDateField = UIStyle.createTextField();
@@ -134,6 +134,7 @@ public class ReportsPanel extends JPanel implements MainFrame.Refreshable {
         }
         JTable table = new JTable(model);
         UIStyle.styleTable(table);
+        UIStyle.applyStatusRenderer(table, 7);
         reportContent.add(new JScrollPane(table), BorderLayout.CENTER);
 
         reportContent.revalidate();
@@ -262,6 +263,7 @@ public class ReportsPanel extends JPanel implements MainFrame.Refreshable {
 
         JTable table = new JTable(model);
         UIStyle.styleTable(table);
+        UIStyle.applyStatusRenderer(table, 7);
 
         // Summary stats
         double avgOccupancy = ds.getAverageOccupancy();
