@@ -12,6 +12,7 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
     private PassengerController controller;
     private JTable table;
     private DefaultTableModel tableModel;
+    private JTextField searchField;
 
     private JTextField nameField, emailField, phoneField, nationalIdField;
     private String selectedPassengerId = null;
@@ -27,16 +28,22 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
 
     private void buildUI() {
         // Title
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         titlePanel.setOpaque(false);
         titlePanel.add(UIStyle.createTitleLabel("Passenger Management"));
-        add(titlePanel, BorderLayout.NORTH);
+        topPanel.add(titlePanel, BorderLayout.WEST);
+        add(topPanel, BorderLayout.NORTH);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setDividerLocation(650);
         splitPane.setBackground(UIStyle.BG_MAIN);
 
-        // === TABLE ===
+        // === TABLE with search ===
+        JPanel tablePanel = new JPanel(new BorderLayout(0, 8));
+        tablePanel.setOpaque(false);
+
         String[] columns = {"Passenger ID", "Full Name", "Email", "Phone", "National ID", "Reg. Date"};
         tableModel = new DefaultTableModel(columns, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
@@ -49,9 +56,17 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
             }
         });
 
+        searchField = UIStyle.addTableSearch(table, tableModel);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        searchPanel.setOpaque(false);
+        searchPanel.add(searchField);
+        tablePanel.add(searchPanel, BorderLayout.NORTH);
+
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
-        splitPane.setLeftComponent(scrollPane);
+        tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+        splitPane.setLeftComponent(tablePanel);
 
         // === FORM ===
         JPanel formCard = UIStyle.createCard();
@@ -122,12 +137,13 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
         }
     }
 
-    private void populateForm(int row) {
-        selectedPassengerId = tableModel.getValueAt(row, 0).toString();
-        nameField.setText(tableModel.getValueAt(row, 1).toString());
-        emailField.setText(tableModel.getValueAt(row, 2).toString());
-        phoneField.setText(tableModel.getValueAt(row, 3).toString());
-        nationalIdField.setText(tableModel.getValueAt(row, 4).toString());
+    private void populateForm(int viewRow) {
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        selectedPassengerId = tableModel.getValueAt(modelRow, 0).toString();
+        nameField.setText(tableModel.getValueAt(modelRow, 1).toString());
+        emailField.setText(tableModel.getValueAt(modelRow, 2).toString());
+        phoneField.setText(tableModel.getValueAt(modelRow, 3).toString());
+        nationalIdField.setText(tableModel.getValueAt(modelRow, 4).toString());
     }
 
     private void addPassenger() {
@@ -138,7 +154,7 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
         if (error != null) {
             JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(this, "Passenger registered successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            UIStyle.showToast(this, "Passenger registered successfully!", UIStyle.SUCCESS);
             clearForm();
             loadTableData();
         }
@@ -156,7 +172,7 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
         if (error != null) {
             JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(this, "Passenger updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            UIStyle.showToast(this, "Passenger updated successfully!", UIStyle.SUCCESS);
             clearForm();
             loadTableData();
         }
@@ -174,7 +190,7 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
             if (error != null) {
                 JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Passenger deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                UIStyle.showToast(this, "Passenger deleted.", UIStyle.DANGER);
                 clearForm();
                 loadTableData();
             }

@@ -228,6 +228,7 @@ public class DashboardPanel extends JPanel implements MainFrame.Refreshable {
 
         JTable table = new JTable(data, columns);
         UIStyle.styleTable(table);
+        UIStyle.applyStatusRenderer(table, 6);
         table.setEnabled(false);
 
         JScrollPane sp = new JScrollPane(table);
