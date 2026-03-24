@@ -21,7 +21,7 @@ public class LoginFrame extends JFrame {
         setSize(480, 460);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setResizable(false);
+        setMinimumSize(new Dimension(420, 400));
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(UIStyle.BG_MAIN);

@@ -41,7 +41,7 @@ public class TrainPanel extends JPanel implements MainFrame.Refreshable {
 
         // Split: Table left, Form right
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(650);
+        splitPane.setResizeWeight(0.65);
         splitPane.setBackground(UIStyle.BG_MAIN);
 
         // === TABLE with search ===

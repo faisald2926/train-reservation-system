@@ -37,7 +37,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         // Top: Booking Form
         JPanel bookingCard = UIStyle.createCard();
         bookingCard.setLayout(new BorderLayout(10, 10));
-        bookingCard.setPreferredSize(new Dimension(0, 250));
+        // preferredSize removed — layout sizes naturally for resizability
 
         JLabel bookTitle = new JLabel("New Booking");
         bookTitle.setFont(UIStyle.FONT_SUBTITLE);
@@ -148,12 +148,13 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         scrollPane.setBorder(BorderFactory.createLineBorder(UIStyle.BORDER_COLOR));
         tableSection.add(scrollPane, BorderLayout.CENTER);
 
-        JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
-        centerPanel.setOpaque(false);
-        centerPanel.add(bookingCard, BorderLayout.NORTH);
-        centerPanel.add(tableSection, BorderLayout.CENTER);
-
-        add(centerPanel, BorderLayout.CENTER);
+        // Resizable split between booking form and reservations table
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, bookingCard, tableSection);
+        splitPane.setResizeWeight(0.35);
+        splitPane.setBorder(null);
+        splitPane.setBackground(UIStyle.BG_MAIN);
+        splitPane.setDividerSize(6);
+        add(splitPane, BorderLayout.CENTER);
         updateTrainInfo();
     }
 

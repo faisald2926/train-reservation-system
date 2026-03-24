@@ -37,7 +37,7 @@ public class PassengerPanel extends JPanel implements MainFrame.Refreshable {
         add(topPanel, BorderLayout.NORTH);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(650);
+        splitPane.setResizeWeight(0.65);
         splitPane.setBackground(UIStyle.BG_MAIN);
 
         // === TABLE with search ===
