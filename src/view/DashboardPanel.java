@@ -56,10 +56,14 @@ public class DashboardPanel extends JPanel implements MainFrame.Refreshable {
         chartsArea.add(createReservationSummary());
 
         topSection.add(chartsArea, BorderLayout.CENTER);
-        add(topSection, BorderLayout.CENTER);
 
-        // Recent Activity
-        add(createRecentActivity(), BorderLayout.SOUTH);
+        // Resizable split between charts and recent activity
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topSection, createRecentActivity());
+        splitPane.setResizeWeight(0.65);
+        splitPane.setBorder(null);
+        splitPane.setBackground(UIStyle.BG_MAIN);
+        splitPane.setDividerSize(6);
+        add(splitPane, BorderLayout.CENTER);
 
         revalidate();
         repaint();
@@ -206,7 +210,7 @@ public class DashboardPanel extends JPanel implements MainFrame.Refreshable {
     private JPanel createRecentActivity() {
         JPanel card = UIStyle.createCard();
         card.setLayout(new BorderLayout(5, 5));
-        card.setPreferredSize(new Dimension(0, 160));
+        // preferredSize removed — layout sizes naturally for resizability
 
         JLabel title = new JLabel("Recent Reservations");
         title.setFont(UIStyle.FONT_SUBTITLE);

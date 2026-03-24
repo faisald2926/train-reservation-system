@@ -30,7 +30,7 @@ public class ReportsPanel extends JPanel implements MainFrame.Refreshable {
         // Controls Panel
         JPanel controlsCard = UIStyle.createCard();
         controlsCard.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 8));
-        controlsCard.setPreferredSize(new Dimension(0, 80));
+        // preferredSize removed — layout sizes naturally for resizability
 
         controlsCard.add(UIStyle.createLabel("From:"));
         fromDateField = UIStyle.createTextField();
@@ -73,12 +73,13 @@ public class ReportsPanel extends JPanel implements MainFrame.Refreshable {
         placeholder.setForeground(UIStyle.TEXT_SECONDARY);
         reportContent.add(placeholder, BorderLayout.CENTER);
 
-        JPanel centerPanel = new JPanel(new BorderLayout(0, 10));
-        centerPanel.setOpaque(false);
-        centerPanel.add(controlsCard, BorderLayout.NORTH);
-        centerPanel.add(reportContent, BorderLayout.CENTER);
-
-        add(centerPanel, BorderLayout.CENTER);
+        // Resizable split between controls and report content
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, controlsCard, reportContent);
+        splitPane.setResizeWeight(0.15);
+        splitPane.setBorder(null);
+        splitPane.setBackground(UIStyle.BG_MAIN);
+        splitPane.setDividerSize(6);
+        add(splitPane, BorderLayout.CENTER);
     }
 
     private void generateBookingReport() {
