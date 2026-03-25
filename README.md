@@ -132,4 +132,12 @@ Data persists between application sessions automatically.
 - **Architecture**: MVC (Model-View-Controller)
 - **Persistence**: Java Object Serialization (File-based)
 - **Development Methodology**: Agile/Scrum
+  
+![pic1](https://github.com/user-attachments/assets/8d58e1ed-25b5-4e40-bcf2-98c574856ac4)
+![pic2](https://github.com/user-attachments/assets/c9dbcf61-d1ca-4bc3-bb15-cf7ae44508b5)
+![pic3](https://github.com/user-attachments/assets/b768a541-989d-463d-b0f3-13052048dfe4)
+![pic4](https://github.com/user-attachments/assets/d63991bf-38cb-4b76-bbf3-92019e46e3c7)
+![pic5](https://github.com/user-attachments/assets/229150fc-06db-41bf-9208-e1288bc8f1e4)
+![pic6](https://github.com/user-attachments/assets/dc7f568a-d36c-4046-b829-67cac96e4bf0)
+![pic7](https://github.com/user-attachments/assets/ab7a58ec-73c1-4c1f-8ea1-66879645fb2c)
 
