@@ -199,6 +199,7 @@ public class DataStore {
         if (!dir.exists()) {
             dir.mkdirs();
             createDefaultUsers();
+            createDefaultTrains();
             saveAll();
             return;
         }
@@ -217,10 +218,16 @@ public class DataStore {
             recalculateCounters();
         }
 
+        boolean dirty = false;
         if (users.isEmpty()) {
             createDefaultUsers();
-            saveAll();
+            dirty = true;
         }
+        if (trains.isEmpty()) {
+            createDefaultTrains();
+            dirty = true;
+        }
+        if (dirty) saveAll();
     }
 
     public void saveAll() {
@@ -264,6 +271,21 @@ public class DataStore {
     private void createDefaultUsers() {
         users.add(new User("USR-0001", "admin", "admin123", User.Role.ADMIN, "System Administrator"));
         users.add(new User("USR-0002", "staff", "staff123", User.Role.STAFF, "Staff Member"));
+    }
+
+    private void createDefaultTrains() {
+        Train riyadhExpress = new Train(
+            generateTrainId(),
+            "Riyadh Express",
+            "Riyadh to Dammam",
+            "Riyadh Station",
+            "Dammam Station",
+            "08:30 AM",
+            "12:45 PM",
+            250,
+            75.0
+        );
+        trains.add(riyadhExpress);
     }
 
     private void recalculateCounters() {
