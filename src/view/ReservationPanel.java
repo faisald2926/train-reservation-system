@@ -15,10 +15,20 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
     private JTextField searchField;
 
     private JComboBox<String> passengerCombo, trainCombo;
+    private JLabel customerLabel;
     private JTextField travelDateField, seatCountField;
     private JLabel priceLabel, availableLabel;
 
+    private final User currentUser;
+    private final boolean customerMode;
+
     public ReservationPanel() {
+        this(null);
+    }
+
+    public ReservationPanel(User user) {
+        this.currentUser = user;
+        this.customerMode = user != null && user.getRole() == User.Role.CUSTOMER;
         controller = new ReservationController();
         setLayout(new BorderLayout(15, 15));
         setBackground(UIStyle.BG_MAIN);
@@ -54,11 +64,22 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
         gbc.gridx = 0; gbc.gridy = 0;
         formPanel.add(UIStyle.createLabel("Passenger:"), gbc);
         gbc.gridx = 1; gbc.weightx = 1.0;
-        passengerCombo = new JComboBox<>();
-        passengerCombo.setFont(UIStyle.FONT_BODY);
-        passengerCombo.setPreferredSize(new Dimension(250, 36));
-        loadPassengerCombo();
-        formPanel.add(passengerCombo, gbc);
+        if (customerMode) {
+            Passenger me = DataStore.getInstance().getPassengerById(currentUser.getLinkedPassengerId());
+            String meText = me != null
+                ? me.getPassengerId() + " - " + me.getFullName()
+                : currentUser.getFullName();
+            customerLabel = new JLabel(meText);
+            customerLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            customerLabel.setForeground(UIStyle.PRIMARY);
+            formPanel.add(customerLabel, gbc);
+        } else {
+            passengerCombo = new JComboBox<>();
+            passengerCombo.setFont(UIStyle.FONT_BODY);
+            passengerCombo.setPreferredSize(new Dimension(250, 36));
+            loadPassengerCombo();
+            formPanel.add(passengerCombo, gbc);
+        }
 
         gbc.gridx = 2; gbc.weightx = 0;
         formPanel.add(UIStyle.createLabel("Train:"), gbc);
@@ -159,6 +180,7 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
     }
 
     private void loadPassengerCombo() {
+        if (passengerCombo == null) return;
         passengerCombo.removeAllItems();
         List<Passenger> passengers = DataStore.getInstance().getPassengers();
         for (Passenger p : passengers) {
@@ -194,7 +216,9 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
 
     private void loadTableData() {
         tableModel.setRowCount(0);
-        List<Reservation> reservations = controller.getAllReservations();
+        List<Reservation> reservations = customerMode
+            ? controller.getReservationsByPassenger(currentUser.getLinkedPassengerId())
+            : controller.getAllReservations();
         for (Reservation r : reservations) {
             tableModel.addRow(new Object[]{
                 r.getReservationId(), r.getPassengerName(), r.getTrainName(),
@@ -206,15 +230,29 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
     }
 
     private void bookTicket() {
-        String passengerSel = (String) passengerCombo.getSelectedItem();
         String trainSel = (String) trainCombo.getSelectedItem();
 
-        if (passengerSel == null || trainSel == null) {
-            JOptionPane.showMessageDialog(this, "Please select a passenger and a train.", "Warning", JOptionPane.WARNING_MESSAGE);
+        String passengerId;
+        if (customerMode) {
+            passengerId = currentUser.getLinkedPassengerId();
+            if (passengerId == null) {
+                JOptionPane.showMessageDialog(this, "Your account is not linked to a passenger profile.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            String passengerSel = (String) passengerCombo.getSelectedItem();
+            if (passengerSel == null) {
+                JOptionPane.showMessageDialog(this, "Please select a passenger.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            passengerId = passengerSel.split(" - ")[0].trim();
+        }
+
+        if (trainSel == null) {
+            JOptionPane.showMessageDialog(this, "Please select a train.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String passengerId = passengerSel.split(" - ")[0].trim();
         String trainId = trainSel.split(" - ")[0].trim();
         String travelDate = travelDateField.getText().trim();
 
@@ -226,11 +264,17 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
             return;
         }
 
+        Train train = DataStore.getInstance().getTrainById(trainId);
+        double estimatedTotal = train != null ? train.getTicketPrice() * Math.max(seatCount, 0) : 0;
+
+        if (!showPaymentDialog(estimatedTotal)) {
+            return;
+        }
+
         String error = controller.bookTicket(passengerId, trainId, travelDate, seatCount);
         if (error != null) {
             JOptionPane.showMessageDialog(this, error, "Booking Failed", JOptionPane.ERROR_MESSAGE);
         } else {
-            // Show confirmation
             List<Reservation> all = controller.getAllReservations();
             Reservation last = all.get(all.size() - 1);
             String confirmation = controller.getBookingConfirmation(last.getReservationId());
@@ -239,10 +283,67 @@ public class ReservationPanel extends JPanel implements MainFrame.Refreshable {
             textArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
             textArea.setEditable(false);
             JOptionPane.showMessageDialog(this, new JScrollPane(textArea),
-                "Booking Confirmed!", JOptionPane.INFORMATION_MESSAGE);
+                "Payment Successful - Booking Confirmed", JOptionPane.INFORMATION_MESSAGE);
 
             refreshAll();
         }
+    }
+
+    private boolean showPaymentDialog(double amount) {
+        Window owner = SwingUtilities.getWindowAncestor(this);
+        JDialog dialog = (owner instanceof Frame)
+            ? new JDialog((Frame) owner, "SecurePay Gateway", true)
+            : new JDialog((Dialog) owner, "SecurePay Gateway", true);
+        dialog.setSize(380, 200);
+        dialog.setLocationRelativeTo(this);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+
+        JPanel content = new JPanel(new BorderLayout(0, 12));
+        content.setBackground(Color.WHITE);
+        content.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+
+        JLabel title = new JLabel("Processing payment via SecurePay…");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        title.setForeground(UIStyle.PRIMARY);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JLabel amountLabel = new JLabel(String.format("Amount: SAR %.2f", amount));
+        amountLabel.setFont(UIStyle.FONT_BODY);
+        amountLabel.setForeground(UIStyle.TEXT_PRIMARY);
+        amountLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JProgressBar bar = new JProgressBar();
+        bar.setIndeterminate(true);
+        bar.setPreferredSize(new Dimension(0, 18));
+
+        JLabel hint = new JLabel("Please do not close this window.");
+        hint.setFont(UIStyle.FONT_SMALL);
+        hint.setForeground(UIStyle.TEXT_SECONDARY);
+        hint.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JPanel center = new JPanel();
+        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
+        center.setOpaque(false);
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        amountLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        hint.setAlignmentX(Component.CENTER_ALIGNMENT);
+        center.add(title);
+        center.add(Box.createVerticalStrut(8));
+        center.add(amountLabel);
+        center.add(Box.createVerticalStrut(10));
+        center.add(bar);
+        center.add(Box.createVerticalStrut(8));
+        center.add(hint);
+
+        content.add(center, BorderLayout.CENTER);
+        dialog.setContentPane(content);
+
+        Timer timer = new Timer(1500, e -> dialog.dispose());
+        timer.setRepeats(false);
+        timer.start();
+        dialog.setVisible(true);
+        return true;
     }
 
     private void cancelReservation() {

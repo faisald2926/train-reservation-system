@@ -69,20 +69,26 @@ public class MainFrame extends JFrame {
         contentPanel.setBackground(UIStyle.BG_MAIN);
 
         boolean isAdmin = currentUser.getRole() == User.Role.ADMIN;
+        boolean isCustomer = currentUser.getRole() == User.Role.CUSTOMER;
 
-        if (isAdmin) {
-            sidebar.add(UIStyle.createSidebarSectionLabel("Overview"));
-            addNavItem(sidebar, "Dashboard", "dashboard", new DashboardPanel());
-        }
+        if (isCustomer) {
+            sidebar.add(UIStyle.createSidebarSectionLabel("My Account"));
+            addNavItem(sidebar, "My Reservations", "reservations", new ReservationPanel(currentUser));
+        } else {
+            if (isAdmin) {
+                sidebar.add(UIStyle.createSidebarSectionLabel("Overview"));
+                addNavItem(sidebar, "Dashboard", "dashboard", new DashboardPanel());
+            }
 
-        sidebar.add(UIStyle.createSidebarSectionLabel("Management"));
-        addNavItem(sidebar, "Trains", "trains", new TrainPanel());
-        addNavItem(sidebar, "Passengers", "passengers", new PassengerPanel());
-        addNavItem(sidebar, "Reservations", "reservations", new ReservationPanel());
+            sidebar.add(UIStyle.createSidebarSectionLabel("Management"));
+            addNavItem(sidebar, "Trains", "trains", new TrainPanel());
+            addNavItem(sidebar, "Passengers", "passengers", new PassengerPanel());
+            addNavItem(sidebar, "Reservations", "reservations", new ReservationPanel(currentUser));
 
-        if (isAdmin) {
-            sidebar.add(UIStyle.createSidebarSectionLabel("Analytics"));
-            addNavItem(sidebar, "Reports", "reports", new ReportsPanel());
+            if (isAdmin) {
+                sidebar.add(UIStyle.createSidebarSectionLabel("Analytics"));
+                addNavItem(sidebar, "Reports", "reports", new ReportsPanel());
+            }
         }
 
         // Push items to top

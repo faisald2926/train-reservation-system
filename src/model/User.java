@@ -5,13 +5,14 @@ import java.io.Serializable;
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public enum Role { ADMIN, STAFF }
+    public enum Role { ADMIN, STAFF, CUSTOMER }
 
     private String userId;
     private String username;
     private String password;
     private Role role;
     private String fullName;
+    private String linkedPassengerId;
 
     public User(String userId, String username, String password, Role role, String fullName) {
         this.userId = userId;
@@ -31,6 +32,8 @@ public class User implements Serializable {
     public void setRole(Role role) { this.role = role; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getLinkedPassengerId() { return linkedPassengerId; }
+    public void setLinkedPassengerId(String linkedPassengerId) { this.linkedPassengerId = linkedPassengerId; }
 
     @Override
     public String toString() {

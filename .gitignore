@@ -8,3 +8,14 @@ data/
 *.iml
 .DS_Store
 Thumbs.db
+
+# Local helper scripts (not part of the project)
+copy_to_team3.py
+gen_phase1.py
+gen_phase3.py
+gen_sprint_sheet.py
+gen_sprint_sheet_phase2.py
+gen_sprint_sheet_phase3.py
+generate_doc.py
+merge_123.py
+gitignore/
