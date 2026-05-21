@@ -41,9 +41,13 @@ echo.
 
 REM Compile all Java files
 echo Compiling Java source files...
-"%JAVAC_EXE%" -d bin src\model\*.java src\util\*.java src\controller\*.java src\view\*.java src\Main.java
+if exist sources.txt del sources.txt
+dir /s /b src\*.java > sources.txt
+"%JAVAC_EXE%" -d bin @sources.txt
+set "COMPILE_RC=%errorlevel%"
+del sources.txt
 
-if %errorlevel% neq 0 (
+if %COMPILE_RC% neq 0 (
     echo.
     echo ERROR: Compilation failed! Make sure JDK is installed.
     echo Download JDK from: https://adoptium.net/
